@@ -37,7 +37,7 @@ public class Driver implements bank.BankDriver {
 	static class Bank implements bank.Bank {
 
 		private final Map<String, Account> accounts = new HashMap<>();
-
+		static int accNumber = 10000;
 		@Override
 		public Set<String> getAccountNumbers() {
 			Set<String> lstAccountNumbers = new HashSet<>();
@@ -50,7 +50,8 @@ public class Driver implements bank.BankDriver {
 		@Override
 		public String createAccount(String owner) {
 			//TODO how to get account number for new accounts?
-			Account a = new Account(owner);
+			Account a = new Account(owner, String.valueOf(accNumber));
+			accNumber++;
 			this.accounts.put(owner, a);
 			return owner;
 		}
