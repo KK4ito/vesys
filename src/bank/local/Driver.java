@@ -49,7 +49,6 @@ public class Driver implements bank.BankDriver {
 
 		@Override
 		public String createAccount(String owner) {
-			//TODO how to get account number for new accounts?
 			Account a = new Account(owner, String.valueOf(accNumber));
 			accNumber++;
 			this.accounts.put(owner, a);
