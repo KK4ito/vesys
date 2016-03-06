@@ -6,6 +6,7 @@
 package bank.local;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,10 +32,11 @@ public class Driver implements bank.BankDriver {
 
 	@Override
 	public Bank getBank() {
+		if(bank == null) bank = new Bank();
 		return bank;
 	}
 
-	static class Bank implements bank.Bank {
+	public static class Bank implements bank.Bank {
 
 		private final Map<String, Account> accounts = new HashMap<>();
 		static int accNumber = 10000;
@@ -88,7 +90,7 @@ public class Driver implements bank.BankDriver {
 
 	}
 
-	static class Account implements bank.Account {
+	static class Account implements bank.Account, Serializable{
 		private String number;
 		private String owner;
 		private double balance;
