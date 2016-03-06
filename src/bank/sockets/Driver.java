@@ -34,7 +34,7 @@ public class Driver implements bank.BankDriver, Serializable {
 		System.out.println("Listen on: " + sock.getLocalPort());
 		outputstream = new ObjectOutputStream(sock.getOutputStream());
 		inputstream = new ObjectInputStream(sock.getInputStream());
-		System.out.println("connected...");
+		System.out.println("connected on port " + args[1]);
 	}
 
 	@Override
