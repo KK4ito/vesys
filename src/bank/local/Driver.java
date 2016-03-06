@@ -79,7 +79,7 @@ public class Driver implements bank.BankDriver {
 		@Override
 		public void transfer(bank.Account from, bank.Account to, double amount)
 				throws IOException, InactiveException, OverdrawException {
-			if(from.isActive() == false && to.isActive()== false ) throw new InactiveException();
+			if(from.isActive() == false || to.isActive()== false ) throw new InactiveException();
 			if(from.getBalance() < amount || amount < 0)throw new OverdrawException();
 			
 			from.withdraw(amount);
