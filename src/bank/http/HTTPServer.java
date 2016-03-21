@@ -55,11 +55,9 @@ public class HTTPServer {
 
 
 			try {
-				while (true) {
-
-					Command request = (Command)ois.readObject();
-					Object response = null;
-
+				Command request;
+				Object response = null;
+				while ( (request = (Command)ois.readObject())!= null) {
 					request.execute(bank);
 					response = request.getRetval();
 
@@ -75,6 +73,8 @@ public class HTTPServer {
 						// send response
 						exchange.sendResponseHeaders(200, size);
 						oos = new ObjectOutputStream(exchange.getResponseBody());
+						
+						
 						oos.writeObject(response);
 					}catch (IOException e){
 						e.printStackTrace();

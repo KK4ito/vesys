@@ -28,12 +28,13 @@ import bank.sockets.Command;
  * @author Kevin
  *
  */
-public class HTTPDriver implements bank.BankDriver, Serializable {
+public class HTTPDriver implements bank.BankDriver, Serializable{
 	private Bank bank = new Bank();
-	private URL url;
-	private ObjectOutputStream outputstream;
-	private ObjectInputStream inputstream;
-	HttpURLConnection httpCon;
+	private transient URL url;
+	private transient HttpURLConnection httpCon;
+	private transient ObjectOutputStream outputstream;
+	private transient ObjectInputStream inputstream;
+	
 
 	@Override
 	public void connect(String[] args) throws UnknownHostException, IOException {
@@ -76,7 +77,7 @@ public class HTTPDriver implements bank.BankDriver, Serializable {
 		return bank;
 	}
 
-	class Bank implements bank.Bank{
+	class Bank implements bank.Bank, Serializable {
 
 		@Override
 		public Set<String> getAccountNumbers() throws IOException {
@@ -132,7 +133,7 @@ public class HTTPDriver implements bank.BankDriver, Serializable {
 
 	}
 
-	class Account implements bank.Account, Serializable{
+	class Account implements bank.Account, Serializable {
 		private final String number;
 		private final String owner;
 
