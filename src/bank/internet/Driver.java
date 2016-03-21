@@ -45,44 +45,53 @@ public class Driver implements bank.BankDriver, Serializable {
 		return bank;
 	}
 
+	public java.net.HttpURLConnection openConnection() throws IOException {
+		URL url = new URL(lh.concat("command"));
+		java.net.HttpURLConnection c = (java.net.HttpURLConnection) url.openConnection();
+		c.setRequestMethod("POST");
+		c.setDoOutput(true);
+		c.setDoInput(true);
+		c.setUseCaches(false);
+		c.connect();
+		inputstream = new ObjectInputStream(c.getInputStream());
+		outputstream = new ObjectOutputStream(c.getOutputStream());
+		return c;
+	}
+
 	class Bank implements bank.Bank, Serializable {
-		
-		public java.net.HttpURLConnection openConnection() throws IOException{
-			URL url = new URL (lh.concat("command"));
-			java.net.HttpURLConnection c = (java.net.HttpURLConnection) url.openConnection();
-			c.setRequestMethod("POST");
-			c.setDoOutput(true);
-			c.setDoInput(true);
-			c.setUseCaches(false);
-			c.connect();
-			inputstream = new ObjectInputStream(c.getInputStream());
-			outputstream = new ObjectOutputStream(c.getOutputStream());
-			return c;
-		}
-		
+
 		@Override
 		public Set<String> getAccountNumbers() throws IOException {
 			Command cmd = new GetNumbersCmd();
 			java.net.HttpURLConnection connection = openConnection();
-			
+
 			try {
 				outputstream.writeObject(cmd);
 				return (Set<String>) inputstream.readObject();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				return null;
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
-			
+
 		}
 
 		@Override
 		public String createAccount(String owner) throws IOException {
 			Command cmd = new CreateAccountCmd(owner);
+			java.net.HttpURLConnection connection = openConnection();
 			try {
 				outputstream.writeObject(cmd);
 				return (String) inputstream.readObject();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
 			return null;
 		}
@@ -90,59 +99,72 @@ public class Driver implements bank.BankDriver, Serializable {
 		@Override
 		public boolean closeAccount(String number) throws IOException {
 			Command cmd = new CloseAccountCmd(number);
+			java.net.HttpURLConnection connection = openConnection();
 			outputstream.writeObject(cmd);
 			try {
 				return (Boolean) inputstream.readObject();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
 			return false;
 		}
 
 		@Override
-		public bank.Account getAccount(String number) throws IOException{
+		public bank.Account getAccount(String number) throws IOException {
 			Command cmd = new GetAccountCmd(number);
+			java.net.HttpURLConnection connection = openConnection();
 			try {
 				outputstream.writeObject(cmd);
 				bank.Account acc = (bank.Account) inputstream.readObject();
-				if(acc != null){
+				if (acc != null) {
 					Account myacc = new Account(acc.getOwner(), acc.getNumber());
 					return myacc;
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
 			return null;
 		}
 
 		@Override
-		public void transfer(bank.Account from, bank.Account to, double amount) throws IOException, InactiveException, OverdrawException{
+		public void transfer(bank.Account from, bank.Account to, double amount)
+				throws IOException, InactiveException, OverdrawException {
 			Command cmd = new TransferCmd(from, to, amount);
+			java.net.HttpURLConnection connection = openConnection();
 			try {
 				outputstream.writeObject(cmd);
 				Exception result = (Exception) inputstream.readObject();
-				if(result != null){
-					if(result.getClass() == InactiveException.class){
-						throw (InactiveException)result;
-					}
-					else if(result.getClass() == OverdrawException.class){
-						throw (OverdrawException)result;
-					}
-					else if(result.getClass() == IllegalArgumentException.class){
-						throw (IllegalArgumentException)result;
-					}
-					else{
+				if (result != null) {
+					if (result.getClass() == InactiveException.class) {
+						throw (InactiveException) result;
+					} else if (result.getClass() == OverdrawException.class) {
+						throw (OverdrawException) result;
+					} else if (result.getClass() == IllegalArgumentException.class) {
+						throw (IllegalArgumentException) result;
+					} else {
 						result.printStackTrace();
 					}
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
 		}
 
 	}
 
-	class Account implements bank.Account, Serializable{
+	class Account implements bank.Account, Serializable {
 		private final String number;
 		private final String owner;
 
@@ -154,11 +176,16 @@ public class Driver implements bank.BankDriver, Serializable {
 		@Override
 		public double getBalance() throws IOException {
 			Command cmd = new GetBalanceCmd(number);
+			java.net.HttpURLConnection connection = openConnection();
 			try {
 				outputstream.writeObject(cmd);
 				return (Double) inputstream.readObject();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
 			return -1;
 		}
@@ -176,11 +203,16 @@ public class Driver implements bank.BankDriver, Serializable {
 		@Override
 		public boolean isActive() throws IOException {
 			Command cmd = new IsActiveCmd(number);
+			java.net.HttpURLConnection connection = openConnection();
 			try {
 				outputstream.writeObject(cmd);
 				return (Boolean) inputstream.readObject();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
 			return false;
 		}
@@ -188,59 +220,69 @@ public class Driver implements bank.BankDriver, Serializable {
 		@Override
 		public void deposit(double amount) throws InactiveException, IOException {
 			Command cmd = new DepositCmd(number, amount);
+			java.net.HttpURLConnection connection = openConnection();
 			try {
 				outputstream.writeObject(cmd);
 				Exception result = (Exception) inputstream.readObject();
-				
-				if(result != null){
-					if(result.getClass() == InactiveException.class){
-						throw (InactiveException)result;
-					}
-					else if(result.getClass() == IllegalArgumentException.class){
-						throw (IllegalArgumentException)result;
-					}
-					else{
+
+				if (result != null) {
+					if (result.getClass() == InactiveException.class) {
+						throw (InactiveException) result;
+					} else if (result.getClass() == IllegalArgumentException.class) {
+						throw (IllegalArgumentException) result;
+					} else {
 						result.printStackTrace();
 					}
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
 		}
 
 		@Override
 		public void withdraw(double amount) throws InactiveException, OverdrawException, IOException {
 			Command cmd = new WithdrawCmd(number, amount);
+			java.net.HttpURLConnection connection = openConnection();
 			try {
 				outputstream.writeObject(cmd);
 				Exception result = (Exception) inputstream.readObject();
-				
-				if(result != null){
-					if(result.getClass() == InactiveException.class){
-						throw (InactiveException)result;
-					}
-					else if(result.getClass() == OverdrawException.class){
-						throw (OverdrawException)result;
-					}
-					else if(result.getClass() == IllegalArgumentException.class){
-						throw (IllegalArgumentException)result;
-					}
-					else{
+
+				if (result != null) {
+					if (result.getClass() == InactiveException.class) {
+						throw (InactiveException) result;
+					} else if (result.getClass() == OverdrawException.class) {
+						throw (OverdrawException) result;
+					} else if (result.getClass() == IllegalArgumentException.class) {
+						throw (IllegalArgumentException) result;
+					} else {
 						result.printStackTrace();
 					}
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
-			} 
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
+			}
 		}
 
 		public boolean setInactive() throws IOException {
 			Command cmd = new SetInactiveCmd(number);
+			java.net.HttpURLConnection connection = openConnection();
 			try {
 				outputstream.writeObject(cmd);
 				return (Boolean) inputstream.readObject();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} finally {
+				inputstream.close();
+				outputstream.close();
+				connection.disconnect();
 			}
 			return false;
 		}
