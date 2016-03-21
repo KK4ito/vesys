@@ -19,6 +19,9 @@ import bank.sockets.Command;
 
 import bank.local.Driver;
 
+//opens server and handles requests
+//@author Kevin & David
+
 public class HTTPServer {
 
 	public static void main(String args[]) throws IOException {
@@ -28,54 +31,48 @@ public class HTTPServer {
 		Bank bank = driver.getBank();
 
 		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-		server.createContext("/bank", new MyHandler(bank));
+		server.createContext("/bank", new Handler(bank));
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.start();
 		System.out.println("Server listening on port 8080");
 
 	}
 
-	static class MyHandler implements HttpHandler {
+	static class Handler implements HttpHandler {
 
 		Bank bank;
-		ObjectOutputStream oos;
-		ObjectInputStream ois;
+		ObjectOutputStream outputstream;
+		ObjectInputStream inputstream;
 
-		public MyHandler(Bank b){
+		public Handler (Bank b){
 			this.bank = b;
 		}
 
 
 		@Override
-		public void handle(HttpExchange exchange) throws IOException {
+		public void handle(HttpExchange channel) throws IOException {
 
-			ois = new ObjectInputStream(exchange.getRequestBody());
+			inputstream = new ObjectInputStream(channel.getRequestBody());
 			System.out.println("entering handle-Method");
-
-
 
 			try {
 				Command request;
 				Object response = null;
-				while ( (request = (Command)ois.readObject())!= null) {
+				while ( (request = (Command)inputstream.readObject())!= null) {
 					request.execute(bank);
 					response = request.getRetval();
-
 					try{
-
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
-						ObjectOutputStream os = new ObjectOutputStream(bos);
-						os.writeObject(response);
-						os.flush();
-						os.close();
+						ObjectOutputStream tmpOut = new ObjectOutputStream(bos);
+						tmpOut.writeObject(response);
+						tmpOut.flush();
+						tmpOut.close();
 						long size = bos.toByteArray().length;
 
-						// send response
-						exchange.sendResponseHeaders(200, size);
-						oos = new ObjectOutputStream(exchange.getResponseBody());
+						channel.sendResponseHeaders(200, size);
+						outputstream = new ObjectOutputStream(channel.getResponseBody());
 						
-						
-						oos.writeObject(response);
+						outputstream.writeObject(response);
 					}catch (IOException e){
 						e.printStackTrace();
 					}
@@ -86,7 +83,7 @@ public class HTTPServer {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("done serving ");
+			System.out.println("Done");
 
 		}
 	}

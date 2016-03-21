@@ -25,7 +25,7 @@ import bank.sockets.Command;
 
 /**
  * exact copy from sockets.Driver with several modifications
- * @author Kevin
+ * @author Kevin & David
  *
  */
 public class HTTPDriver implements bank.BankDriver, Serializable{
@@ -55,7 +55,7 @@ public class HTTPDriver implements bank.BankDriver, Serializable{
 			httpCon = (HttpURLConnection) url.openConnection();
 			httpCon.setRequestMethod("POST");
 			httpCon.setDoOutput(true);
-			httpCon.setDoInput(true); 
+			httpCon.setDoInput(true);
 			httpCon.connect();
 
 			outputstream = new ObjectOutputStream(httpCon.getOutputStream());
