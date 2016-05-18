@@ -4,7 +4,6 @@ package bank.rmi;
 import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.registry.LocateRegistry;
 
 
 import bank.Bank;
@@ -16,11 +15,6 @@ public class Driver implements BankDriver{
 
 	@Override
 	public void connect(String[] args) throws IOException {
-		try {
-			LocateRegistry.createRegistry(1234);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		try {
 			bank = (Bank) Naming.lookup("BankService");
 		} catch (NotBoundException e) {
@@ -39,5 +33,6 @@ public class Driver implements BankDriver{
 	public Bank getBank() {
 		return this.bank;
 	}
+
 
 }

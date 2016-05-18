@@ -9,44 +9,60 @@ import bank.InactiveException;
 import bank.OverdrawException;
 
 public class RMIAccountImpl extends UnicastRemoteObject implements RMIAccount {
-	private Account account;
+	private String number;
+	private String owner;
+	private double balance;
+	public boolean active;
 	
-	public RMIAccountImpl(Account a) throws RemoteException{
+	public RMIAccountImpl(String o, String n) throws RemoteException{
 		super();
-		this.account = a;
+		this.owner = o;
+		this.number = n;
+		this.active = true;
 	}
 	@Override
 	public String getNumber() throws IOException {
-		return account.getNumber();
-	}
-
-	@Override
-	public String getOwner() throws IOException {
-		return account.getOwner();
-	}
-
-	@Override
-	public boolean isActive() throws IOException {
-		return account.isActive();
-	}
-
-	@Override
-	public void deposit(double amount) throws IOException, IllegalArgumentException, InactiveException {
-		account.deposit(amount);
+		return this.number;
 		
 	}
 
 	@Override
-	public void withdraw(double amount)
-			throws IOException, IllegalArgumentException, OverdrawException, InactiveException {
-		account.withdraw(amount);
+	public String getOwner() throws IOException {
+		return this.owner;
+	}
+
+	@Override
+	public boolean isActive() throws IOException {
+		return this.active;
+	}
+
+	@Override
+	public void deposit(double amount) throws IOException, IllegalArgumentException, InactiveException {
+		if(!isActive()) throw new InactiveException();
+		if(amount < 0) throw new IllegalArgumentException();
+		this.balance+= amount;
+		
+	}
+
+	@Override
+	public void withdraw(double amount)	throws IOException, IllegalArgumentException, OverdrawException, InactiveException {
+		if(!isActive()) throw new InactiveException();
+		if(amount < 0) throw new IllegalArgumentException();
+		if(getBalance() < amount) throw new OverdrawException();
+		this.balance-= amount;
 		
 	}
 
 	@Override
 	public double getBalance() throws IOException {
-		// TODO Auto-generated method stub
-		return account.getBalance();
+		return this.balance;
 	}
 
+	public boolean deactivate() throws IOException {
+		if (balance == 0 && isActive()) {
+			active = false;
+			return true;
+		}
+		return false;
+	}
 }

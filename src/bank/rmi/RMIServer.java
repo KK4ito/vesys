@@ -14,7 +14,7 @@ public class RMIServer {
 		}
 		RMIBank rmibank = new RMIBankImpl();
 		Naming.rebind("BankService", rmibank);
-
+		System.out.println("Server started");
 	}
 
 }
