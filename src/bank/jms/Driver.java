@@ -110,7 +110,8 @@ public class Driver implements bank.BankDriver2, Serializable{
 		@Override
 		public void transfer(Account a, Account b, double amount)
 				throws IOException, IllegalArgumentException, OverdrawException, InactiveException {
-			operationsProducer.send(queue, new TransferCmd(a, b, amount));
+			System.out.println(a.getOwner() + "//" + b.getOwner() + "//" + amount);
+			operationsProducer.send(queue, new TransferCmd(a.getNumber(), b.getNumber(), amount));
 		
 			Object o = getResponse();
 			if (o != null)

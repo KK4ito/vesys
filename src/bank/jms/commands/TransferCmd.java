@@ -1,25 +1,26 @@
 package bank.jms.commands;
 
 import java.io.IOException;
+import java.io.Serializable;
 
-import bank.Account;
-import bank.Bank;
+
+import bank.*;
 import bank.InactiveException;
 import bank.OverdrawException;
 
 
 @SuppressWarnings("serial")
-public class TransferCmd implements Command {
+public class TransferCmd implements Command{
 
-	public Account from;
-	public Account to;
-	public double amount;
-	public Exception retval = null;
+	private String from;
+	private String to;
+	private double amount;
+	private Object retval = null;
 	
 	@Override
 	public void execute(Bank b) throws IOException {
 		try {
-			b.transfer(b.getAccount(from.getNumber()), b.getAccount(to.getNumber()), amount);
+			b.transfer(b.getAccount(from), b.getAccount(to), amount);
 		} catch (IllegalArgumentException e) {
 			retval = e;
 		} catch (OverdrawException e) {
@@ -29,7 +30,7 @@ public class TransferCmd implements Command {
 		}
 	}
 
-	public TransferCmd(Account from, Account to, double amount){
+	public TransferCmd(String from, String to, double amount){
 		this.from = from;
 		this.to = to;
 		this.amount = amount;
