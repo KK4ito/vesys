@@ -15,7 +15,7 @@ import java.util.Set;
 import bank.InactiveException;
 import bank.OverdrawException;
 
-public class Driver implements bank.BankDriver {
+public class Driver implements bank.BankDriver, Serializable{
 	private Bank bank = null;
 
 	@Override
@@ -36,7 +36,7 @@ public class Driver implements bank.BankDriver {
 		return bank;
 	}
 
-	public static class Bank implements bank.Bank {
+	public static class Bank implements bank.Bank, Serializable {
 
 		private final Map<String, Account> accounts = new HashMap<>();
 		static int accNumber = 10000;

@@ -6,6 +6,7 @@
 package bank;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * The Account interface represents a single account. It can be used to deposit
@@ -16,7 +17,7 @@ import java.io.IOException;
  * @author Dominik Gruntz
  * @version 3.0
  */
-public interface Account {
+public interface Account{
 
 	/**
 	 * Returns the account number.
