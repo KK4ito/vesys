@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Set;
 
-import com.sun.messaging.jmq.jmsclient.BytesMessageImpl;
-import com.sun.messaging.jmq.jmsclient.TextMessageImpl;
-
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
